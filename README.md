@@ -17,3 +17,9 @@ Comunicación(75% del funcionamiento)
 -Enviar/recibir notificaciones
 -Enviar/recibir archivos
 
+
+Para poder correr el cliente se utiliza en la terminal python3 Cliente2.py
+
+Si se quiere correr el servidor en una mac, seguir este video: https://www.youtube.com/watch?v=Q0ZF5hQ8uY4
+Si se topa con un problema: https://discourse.igniterealtime.org/t/fail-to-start-openfire-4-3-0-on-macos-mojave-version-10-14-2/83863
+
