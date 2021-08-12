@@ -5,7 +5,7 @@ from slixmpp import ClientXMPP
 import nest_asyncio
 nest_asyncio.apply()
 
-
+#cliente , esta es la que instancia 
 class Cliente(ClientXMPP):
     def __init__(self, jid, password, isRegistered = False):
 
@@ -25,7 +25,7 @@ class Cliente(ClientXMPP):
             self['xep_0077'].force_registration = True
                 # Here's how to access plugins once you've registered them:
                 # self['xep_0030'].add_feature('echo_demo')
-
+#inicial seccion e ingresar a el chat
     async def session_start(self, event):
         print("He entrado al chat exitosamente :)")
         self.send_presence()
@@ -33,11 +33,12 @@ class Cliente(ClientXMPP):
             # Most get_*/set_* methods from plugins use Iq stanzas, which
             # are sent asynchronously. You can almost always provide a
             # callback that will be executed when the reply is received.
+#leer mensaje
     def message(self, msg):
         if msg['type'] in ('chat', 'normal'):
             msg.reply("Thanks for sending\n%(body)s" % msg).send()
 
-
+#registrar un usuario
     async def register(self, iq):
         """
         Fill out and submit a registration form.
@@ -72,6 +73,7 @@ class Cliente(ClientXMPP):
             logging.error("No response from server.")
             self.disconnect()
 
+#ingresar a un groupchat
     def join_room(self, room, nicknam):
         try:
             self.plugin['xep_0045'].join_muc(room,
@@ -83,6 +85,7 @@ class Cliente(ClientXMPP):
         except:
             print("No se pudo ingresar a el chat room")
 
+#ver mensajes de groupchat
     def muc_message(self, msg, room):
         """
         Process incoming message stanzas from any chat room. Be aware
@@ -110,6 +113,7 @@ class Cliente(ClientXMPP):
                               mbody="I heard that, %s." % msg['mucnick'],
                               mtype='groupchat')
 
+#saludar a los que entran al groupchat
     def muc_online(self, presence):
         """
         Process a presence stanza from a chat room. In this case,
@@ -127,15 +131,15 @@ class Cliente(ClientXMPP):
                               mbody="Hello, %s %s" % (presence['muc']['role'],
                                                       presence['muc']['nick']),
                               mtype='groupchat')
-
+#cerrar seccion
     def logout(self):
         #print(self.authenticated)
         #self.authenticated = False
         self.disconnect()
-
+#cerrar programa
     def cerrar(self):
         self.running = False
-
+#mandar un mensaje privado
     def mensaje_directo(self, to):
         try:
             mensaje = input("Porfavor ingrese el mensaje: ")
@@ -144,13 +148,14 @@ class Cliente(ClientXMPP):
         except:
             print("No se pudo enviar el mensaje privado.")
 
+#recibir mensaje
     def xmpp_message(self, con, event):
         type = event.getType()
         fromjid = event.getFrom().getStripped()
         if type in ['message', 'chat', None] and fromjid == self.remotejid:
             sys.stdout.write(event.getBody() + '\n')
 
-
+#menu principal
 def menu_principal():
     dele = True
     print("--------------------\nBienvenido a el chat de Kristen\n")
@@ -166,7 +171,7 @@ def menu_principal():
 
     return(username, password,  dele)
 
-
+#menu al ya iniciar session
 def menu_secundario():
     print("-"*20)
     print("\n1. Chat normal")
@@ -177,13 +182,14 @@ def menu_secundario():
 
     return opcion
 
+#menu para enviar un mensaje
 def menu_mensaje():
     recepient = input("Porfavor ingrese el usuario al que le quiere mandar el mensaje: ")
 
     return recepient
 
 
-
+#threads para que el programa escuche y haga otras cosas de main
 async def orden():
     try:
         username, password, dele=menu_principal()
@@ -199,10 +205,11 @@ async def orden():
         print("Usuario desconectado")
 
 
-
+#funcion  que contiene menus y opciones
 async def main(xmpp):
     doit = True
     while doit:
+        #Mensaje directo
         opcion = menu_secundario()
         if opcion == 1:
             recepient = menu_mensaje()
@@ -211,24 +218,27 @@ async def main(xmpp):
 
             pass
 
+        #Chatroom (grupal)
         elif opcion == 2:
             room = input("Cual es el nombre del chatroom: ")
             nicknam= input("Cual quiere que sea su nickname: ")
             xmpp.join_room(room, nicknam)
 
             pass
+
+        #Salir session
         elif opcion == 3:
             print("\nGracias por utilizar el chat de Kristen\n")
             print("Saliendo ...")
             xmpp.logout()
             doit = False
 
-
+        #Eliminar  account
         elif opcion == 4:
             xmpp.delete_account()
             xmpp.cerrar()
             doit = False
 
 
-
+##correr el programa
 asyncio.run(orden())
